@@ -1,9 +1,5 @@
 # Laboratoire RF - Brouilleur (RF Jammer)
 
-Rapport de conception d'un brouilleur radiofrequence (RF Jammer), realise dans le cadre d'un laboratoire d'electronique RF.
-
-> Les schemas ci-dessous sont des images SVG animees (fichiers separes dans `diagrams/`). Elles s'affichent avec leurs animations dans un navigateur ou un visualiseur Markdown qui charge les images externes (GitHub, VS Code, Typora...). Une version HTML autonome et interactive est egalement disponible dans `rf-jammer-chaine.html`.
-
 ## Objectif
 
 Concevoir et realiser une chaine RF complete capable de generer un signal a une frequence donnee et de le rayonner avec une puissance suffisante pour perturber (brouiller) les communications radio dans une bande cible. La chaine couvre l'ensemble du parcours du signal : generation de l'oscillation, amplification de puissance et rayonnement par antenne, avec les etages d'adaptation d'impedance necessaires entre chaque bloc.
@@ -32,7 +28,7 @@ Chaque etage est concu et caracterise separement avant integration de la chaine 
 | C2 | 100 pF |
 | f0 estimee | ~ 433 MHz |
 
-![Oscillateur Colpitts](diagrams/01-colpitts.svg)
+![Oscillateur Colpitts](01-colpitts.svg)
 
 ### 2. Adaptation d'impedance entre l'oscillateur et l'etage d'amplification
 
@@ -46,7 +42,7 @@ Chaque etage est concu et caracterise separement avant integration de la chaine 
 | Zin amplificateur | ~ 50 ohms |
 | Topologie | reseau en L (Pi/T selon Q) |
 
-![Adaptation d'impedance d'entree](diagrams/02-adapt-in.svg)
+![Adaptation d'impedance d'entree](02-adapt-in.svg)
 
 ### 3. Etage d'amplification de puissance
 
@@ -63,7 +59,7 @@ Chaque etage est concu et caracterise separement avant integration de la chaine 
 | Pout visee | ~ 13 dBm |
 | Vcc | 12 V |
 
-![Etage d'amplification de puissance](diagrams/03-amplifier.svg)
+![Etage d'amplification de puissance](03-amplifier.svg)
 
 ### 4. Adaptation d'impedance de sortie
 
@@ -79,7 +75,7 @@ Chaque etage est concu et caracterise separement avant integration de la chaine 
 | Zantenne | 50 ohms |
 | ROS cible | < 1.5:1 |
 
-![Adaptation d'impedance de sortie](diagrams/04-adapt-out.svg)
+![Adaptation d'impedance de sortie](04-adapt-out.svg)
 
 ### 5. Antenne
 
@@ -94,7 +90,7 @@ Chaque etage est concu et caracterise separement avant integration de la chaine 
 | Quart d'onde | ~ 17.3 cm |
 | Impedance antenne | ~ 50 ohms |
 
-![Antenne quart d'onde](diagrams/05-antenna.svg)
+![Antenne quart d'onde](05-antenna.svg)
 
 ## Outils utilises
 
@@ -105,20 +101,3 @@ Chaque etage est concu et caracterise separement avant integration de la chaine 
 
 Les valeurs numeriques affichees (L, C, gain, frequence, dimensions d'antenne) sont des exemples illustratifs a la bande 433 MHz, a remplacer par les valeurs reellement calculees et mesurees pour ce projet.
 
-## Structure du dossier
-
-```
-├── README.md
-├── rf-jammer-chaine.html      Version HTML interactive (animations garanties)
-└── diagrams/                  Schemas SVG utilises dans ce README
-    ├── 00-overview.svg
-    ├── 01-colpitts.svg
-    ├── 02-adapt-in.svg
-    ├── 03-amplifier.svg
-    ├── 04-adapt-out.svg
-    └── 05-antenna.svg
-```
-
-## Auteur
-
-Yassine - etudiant M1 electronique, ISIB (HE2B, Bruxelles)

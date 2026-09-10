@@ -10,7 +10,7 @@ Concevoir et realiser une chaine RF complete capable de generer un signal a une 
 
 ## Architecture generale
 
-![Schema bloc de la chaine RF](diagrams/00-overview.svg)
+![Schema bloc de la chaine RF](00-overview.svg)
 
 Chaque etage est concu et caracterise separement avant integration de la chaine complete.
 

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RF Jammer — Chaîne d'émission</title>
+<style>
+  :root{
+    --bg:#0B1016;
+    --panel:#111823;
+    --panel-2:#0E1520;
+    --line:#233042;
+    --line-strong:#33445A;
+    --signal:#F5A623;
+    --signal-dim:#8A6420;
+    --power:#4FD1A5;
+    --power-dim:#255C48;
+    --copper:#C97C4B;
+    --text:#E7ECF1;
+    --text-dim:#8A97A5;
+    --text-faint:#5B6675;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans','Segoe UI',Helvetica,Arial,sans-serif;
+    line-height:1.5;
+  }
+  .mono{
+    font-family:'IBM Plex Mono','SFMono-Regular',Consolas,'Courier New',monospace;
+  }
+  .wrap{
+    max-width:960px;
+    margin:0 auto;
+    padding:56px 28px 96px;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    border-bottom:1px solid var(--line);
+    padding-bottom:32px;
+    margin-bottom:48px;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.12em;
+    color:var(--signal);
+    margin:0 0 14px;
+  }
+  h1{
+    font-size:clamp(28px,4.2vw,42px);
+    font-weight:700;
+    margin:0 0 12px;
+    letter-spacing:-0.01em;
+  }
+  .lede{
+    color:var(--text-dim);
+    font-size:16px;
+    max-width:620px;
+    margin:0;
+  }
+
+  /* ---------- Block diagram overview ---------- */
+  .overview{
+    margin:44px 0 64px;
+  }
+  .overview-title{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--text-faint);
+    letter-spacing:0.08em;
+    margin:0 0 16px;
+  }
+  .chain{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:0;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:24px 20px;
+  }
+  .chain-block{
+    flex:1 1 140px;
+    text-align:center;
+    padding:14px 8px;
+    border:1px solid var(--line-strong);
+    border-radius:4px;
+    background:var(--panel);
+    font-size:13px;
+    color:var(--text);
+    position:relative;
+  }
+  .chain-block .n{
+    display:block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--signal);
+    margin-bottom:4px;
+  }
+  .chain-arrow{
+    flex:0 0 34px;
+    height:2px;
+    background:var(--line-strong);
+    position:relative;
+    margin:0 -1px;
+  }
+  .chain-arrow::after{
+    content:'';
+    position:absolute;
+    right:0;
+    top:50%;
+    width:0;height:0;
+    border-top:4px solid transparent;
+    border-bottom:4px solid transparent;
+    border-left:6px solid var(--line-strong);
+    transform:translateY(-50%);
+  }
+  .pulse{
+    position:absolute;
+    top:50%;
+    left:0;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--signal);
+    transform:translate(-3px,-50%);
+    box-shadow:0 0 6px 1px var(--signal);
+    animation:travel 5s linear infinite;
+  }
+  @keyframes travel{
+    0%{left:2%;}
+    100%{left:98%;}
+  }
+
+  /* ---------- Stage sections ---------- */
+  .stage{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:28px;
+    padding:36px 0;
+    border-top:1px dashed var(--line);
+  }
+  @media(min-width:760px){
+    .stage{grid-template-columns:1fr 1fr;align-items:start;}
+  }
+  .stage-num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--copper);
+    letter-spacing:0.1em;
+    margin:0 0 6px;
+  }
+  .stage h2{
+    font-size:22px;
+    margin:0 0 10px;
+    font-weight:700;
+  }
+  .stage p{
+    color:var(--text-dim);
+    font-size:14.5px;
+    margin:0 0 14px;
+  }
+  .schematic{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:14px;
+  }
+  .schematic svg{display:block;width:100%;height:auto;}
+  .values{
+    margin-top:16px;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+  .values-title{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--text-faint);
+    letter-spacing:0.08em;
+    margin:0 0 10px;
+  }
+  .vgrid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:10px;
+  }
+  .vitem{
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:10px 12px;
+    background:var(--panel);
+  }
+  .vitem .label{
+    font-size:11px;
+    color:var(--text-faint);
+    margin-bottom:4px;
+  }
+  .vitem .val{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:14px;
+    color:var(--power);
+  }
+  .formula{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--signal);
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:10px 12px;
+    margin:12px 0;
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+  .note{
+    font-size:12.5px;
+    color:var(--text-faint);
+    margin-top:10px;
+  }
+
+  /* svg helpers */
+  .wire{stroke:var(--line-strong);stroke-width:1.5;fill:none;}
+  .lbl{fill:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-size:10px;}
+  .lbl-strong{fill:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11px;}
+  .comp-stroke{stroke:var(--copper);stroke-width:1.6;fill:none;}
+
+  footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    font-size:12.5px;
+    color:var(--text-faint);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .pulse, .osc-line, .amp-line, .ring{animation:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow mono">LABORATOIRE RF — CHAINE D'EMISSION</p>
+    <h1>Brouilleur RF (RF Jammer)</h1>
+    <p class="lede">Vue d'ensemble de la chaine, du generateur d'oscillation jusqu'au rayonnement par l'antenne. Chaque etage est detaille avec son schema de principe et les grandeurs qui le caracterisent.</p>
+  </header>
+
+  <div class="overview">
+    <p class="overview-title mono">SCHEMA BLOC — SIGNAL SUIVI DE L'OSCILLATEUR A L'ANTENNE</p>
+    <div class="chain">
+      <div class="chain-block"><span class="n">01</span>Oscillateur<br>Colpitts</div>
+      <div class="chain-arrow"><span class="pulse" style="animation-delay:0s"></span></div>
+      <div class="chain-block"><span class="n">02</span>Adaptation<br>d'impedance</div>
+      <div class="chain-arrow"><span class="pulse" style="animation-delay:1s"></span></div>
+      <div class="chain-block"><span class="n">03</span>Ampli de<br>puissance</div>
+      <div class="chain-arrow"><span class="pulse" style="animation-delay:2s"></span></div>
+      <div class="chain-block"><span class="n">04</span>Adaptation<br>d'impedance</div>
+      <div class="chain-arrow"><span class="pulse" style="animation-delay:3s"></span></div>
+      <div class="chain-block"><span class="n">05</span>Antenne</div>
+    </div>
+  </div>
+
+  <!-- ================= STAGE 1 : COLPITTS ================= -->
+  <section class="stage">
+    <div>
+      <p class="stage-num mono">ETAGE 01</p>
+      <h2>Oscillateur Colpitts</h2>
+      <p>Genere le signal RF a la frequence de brouillage visee. Le reseau LC forme un diviseur capacitif qui fixe le point de reinjection du signal sur la base du transistor et entretient l'oscillation.</p>
+
+      <div class="formula">f0 = 1 / (2·pi·sqrt(L · Ceq)),&nbsp; Ceq = (C1·C2) / (C1 + C2)</div>
+
+      <div class="values">
+        <p class="values-title mono">VALEURS TYPIQUES (A AJUSTER SELON LA BANDE VISEE)</p>
+        <div class="vgrid">
+          <div class="vitem"><div class="label">L (tank)</div><div class="val">220 nH</div></div>
+          <div class="vitem"><div class="label">C1</div><div class="val">47 pF</div></div>
+          <div class="vitem"><div class="label">C2</div><div class="val">100 pF</div></div>
+          <div class="vitem"><div class="label">f0 estimee</div><div class="val">~ 433 MHz</div></div>
+        </div>
+      </div>
+      <p class="note">La condition de demarrage impose un gain de boucle superieur a 1 (critere de Barkhausen) ; le rapport C1/C2 fixe le taux de reinjection sur la base.</p>
+    </div>
+    <div class="schematic">
+      <svg viewBox="0 0 320 220">
+        <line class="wire" x1="160" y1="10" x2="160" y2="40"/>
+        <line class="wire" x1="130" y1="40" x2="190" y2="40"/>
+        <path class="comp-stroke" d="M160 40 q -12 8 0 16 q 12 8 0 16 q -12 8 0 16 q 12 8 0 16"/>
+        <text class="lbl" x="176" y="70">L</text>
+        <line class="wire" x1="160" y1="104" x2="160" y2="120"/>
+        <circle cx="160" cy="140" r="22" fill="none" stroke="var(--copper)" stroke-width="1.6"/>
+        <text class="lbl-strong" x="150" y="145">Q</text>
+        <line class="wire" x1="160" y1="120" x2="160" y2="128"/>
+        <line class="wire" x1="182" y1="140" x2="230" y2="140"/>
+        <line class="wire" x1="138" y1="140" x2="90" y2="140"/>
+        <line class="wire" x1="160" y1="162" x2="160" y2="190"/>
+        <line class="wire" x1="90" y1="120" x2="90" y2="180"/>
+        <line class="wire" x1="80" y1="90" x2="100" y2="90"/>
+        <line class="wire" x1="90" y1="90" x2="90" y2="120"/>
+        <rect class="comp-stroke" x="80" y="76" width="20" height="10"/>
+        <text class="lbl" x="46" y="84">C1</text>
+        <line class="wire" x1="90" y1="180" x2="90" y2="196"/>
+        <rect class="comp-stroke" x="80" y="196" width="20" height="10"/>
+        <text class="lbl" x="46" y="204">C2</text>
+        <line class="wire" x1="90" y1="140" x2="90" y2="140"/>
+        <line class="wire" x1="60" y1="140" x2="90" y2="140"/>
+        <circle cx="60" cy="140" r="2" fill="var(--copper)"/>
+        <text class="lbl" x="10" y="144">base</text>
+        <line class="wire" x1="230" y1="140" x2="230" y2="206"/>
+        <line class="wire" x1="210" y1="206" x2="250" y2="206"/>
+        <text class="lbl" x="234" y="120">sortie osc.</text>
+        <path class="osc-line" d="M240 20 q6 -14 12 0 q6 14 12 0 q6 -14 12 0 q6 14 12 0" fill="none" stroke="var(--signal)" stroke-width="1.6" stroke-dasharray="200" stroke-dashoffset="0">
+          <animate attributeName="stroke-dashoffset" values="0;-200" dur="1.4s" repeatCount="indefinite"/>
+        </path>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ================= STAGE 2 : ADAPTATION ENTREE ================= -->
+  <section class="stage">
+    <div>
+      <p class="stage-num mono">ETAGE 02</p>
+      <h2>Adaptation d'impedance — entree ampli</h2>
+      <p>Transforme l'impedance de sortie de l'oscillateur vers l'impedance d'entree de l'etage de puissance, afin de maximiser le transfert de puissance et limiter les reflexions.</p>
+
+      <div class="formula">reseau L : Xs (serie) + Xp (parallele), choisis pour Zin(ampli) = Zout(osc)*</div>
+
+      <div class="values">
+        <p class="values-title mono">GRANDEURS CLES</p>
+        <div class="vgrid">
+          <div class="vitem"><div class="label">Zout oscillateur</div><div class="val">~ 200 &Omega;</div></div>
+          <div class="vitem"><div class="label">Zin amplificateur</div><div class="val">~ 50 &Omega;</div></div>
+          <div class="vitem"><div class="label">Topologie</div><div class="val">L (Pi/T selon Q)</div></div>
+        </div>
+      </div>
+      <p class="note">Le rapport d'impedances a transformer fixe le facteur de qualite Q du reseau, donc la selectivite en frequence de l'adaptation.</p>
+    </div>
+    <div class="schematic">
+      <svg viewBox="0 0 320 160">
+        <text class="lbl" x="14" y="70">Zosc</text>
+        <line class="wire" x1="40" y1="76" x2="80" y2="76"/>
+        <path class="comp-stroke" d="M80 76 q6 -8 12 0 q6 8 12 0 q6 -8 12 0 q6 8 12 0" fill="none"/>
+        <text class="lbl" x="86" y="56">Ls</text>
+        <line class="wire" x1="144" y1="76" x2="180" y2="76"/>
+        <line class="wire" x1="180" y1="76" x2="180" y2="60"/>
+        <line class="wire" x1="164" y1="106" x2="196" y2="106"/>
+        <line class="wire" x1="164" y1="112" x2="196" y2="112"/>
+        <line class="wire" x1="180" y1="76" x2="180" y2="106"/>
+        <line class="wire" x1="180" y1="112" x2="180" y2="140"/>
+        <text class="lbl" x="200" y="112">Cp</text>
+        <line class="wire" x1="40" y1="140" x2="180" y2="140"/>
+        <line class="wire" x1="180" y1="76" x2="280" y2="76"/>
+        <line class="wire" x1="280" y1="76" x2="280" y2="140"/>
+        <text class="lbl" x="284" y="70">Zin</text>
+        <text class="lbl" x="284" y="90">ampli</text>
+        <rect x="20" y="40" width="30" height="100" fill="none" stroke="var(--line-strong)" stroke-width="1"/>
+        <rect x="270" y="40" width="30" height="100" fill="none" stroke="var(--line-strong)" stroke-width="1"/>
+        <circle r="4" fill="var(--signal)">
+          <animateMotion dur="2s" repeatCount="indefinite" path="M40 76 L 80 76 Q86 68 92 76 Q98 84 104 76 Q110 68 116 76 Q122 84 128 76 Q134 68 140 76 L 180 76 L 280 76"/>
+        </circle>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ================= STAGE 3 : AMPLI PUISSANCE ================= -->
+  <section class="stage">
+    <div>
+      <p class="stage-num mono">ETAGE 03</p>
+      <h2>Etage d'amplification de puissance</h2>
+      <p>Porte le signal a la puissance necessaire pour le brouillage. Le point de polarisation et la classe de fonctionnement du transistor de puissance conditionnent le gain, le rendement et la linearite.</p>
+
+      <div class="formula">Pout(dBm) = Pin(dBm) + Gain(dB)</div>
+
+      <div class="values">
+        <p class="values-title mono">POINT DE FONCTIONNEMENT (EXEMPLE)</p>
+        <div class="vgrid">
+          <div class="vitem"><div class="label">Gain</div><div class="val">~ 13 dB</div></div>
+          <div class="vitem"><div class="label">Pin</div><div class="val">0 dBm</div></div>
+          <div class="vitem"><div class="label">Pout visee</div><div class="val">~ 13 dBm</div></div>
+          <div class="vitem"><div class="label">Vcc</div><div class="val">12 V</div></div>
+        </div>
+      </div>
+      <p class="note">Le choix de la classe (A, AB, C...) est un compromis entre linearite et rendement ; pour un signal a enveloppe constante, une classe plus proche de C reste envisageable.</p>
+    </div>
+    <div class="schematic">
+      <svg viewBox="0 0 320 180">
+        <path class="amp-line" d="M0 40 q10 -14 20 0 q10 14 20 0 q10 -14 20 0 q10 14 20 0" fill="none" stroke="var(--signal-dim)" stroke-width="1.4"/>
+        <text class="lbl" x="4" y="20">entree</text>
+        <line class="wire" x1="80" y1="40" x2="120" y2="40"/>
+        <circle cx="150" cy="90" r="30" fill="none" stroke="var(--copper)" stroke-width="1.8"/>
+        <text class="lbl-strong" x="140" y="94">Q_pa</text>
+        <line class="wire" x1="120" y1="40" x2="120" y2="90"/>
+        <line class="wire" x1="120" y1="90" x2="120" y2="90"/>
+        <line class="wire" x1="150" y1="60" x2="150" y2="20"/>
+        <line class="wire" x1="130" y1="20" x2="170" y2="20"/>
+        <text class="lbl" x="176" y="16">Vcc</text>
+        <line class="wire" x1="180" y1="90" x2="220" y2="90"/>
+        <line class="wire" x1="150" y1="120" x2="150" y2="150"/>
+        <line class="wire" x1="130" y1="150" x2="170" y2="150"/>
+        <text class="lbl" x="176" y="154">gnd</text>
+        <path class="amp-line" d="M220 90 q12 -34 24 0 q12 34 24 0 q12 -34 24 0 q12 34 24 0" fill="none" stroke="var(--power)" stroke-width="1.8">
+          <animate attributeName="stroke-width" values="1.8;2.6;1.8" dur="1.2s" repeatCount="indefinite"/>
+        </path>
+        <text class="lbl" x="230" y="60">sortie amplifiee</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ================= STAGE 4 : ADAPTATION SORTIE ================= -->
+  <section class="stage">
+    <div>
+      <p class="stage-num mono">ETAGE 04</p>
+      <h2>Adaptation d'impedance — sortie</h2>
+      <p>Adapte la sortie de l'etage de puissance vers l'impedance caracteristique de l'antenne, generalement 50 &Omega;, afin de limiter le ROS et de transferer un maximum de puissance vers le rayonnement.</p>
+
+      <div class="formula">ROS = (1 + |Gamma|) / (1 - |Gamma|)</div>
+
+      <div class="values">
+        <p class="values-title mono">OBJECTIF DE L'ADAPTATION</p>
+        <div class="vgrid">
+          <div class="vitem"><div class="label">Zout ampli</div><div class="val">~ 15 &Omega;</div></div>
+          <div class="vitem"><div class="label">Zantenne</div><div class="val">50 &Omega;</div></div>
+          <div class="vitem"><div class="label">ROS cible</div><div class="val">&lt; 1.5:1</div></div>
+        </div>
+      </div>
+      <p class="note">Un ROS eleve traduit une puissance reflechie vers l'amplificateur, au detriment de la puissance effectivement rayonnee.</p>
+    </div>
+    <div class="schematic">
+      <svg viewBox="0 0 320 160">
+        <text class="lbl" x="14" y="70">Zout amp.</text>
+        <line class="wire" x1="20" y1="76" x2="80" y2="76"/>
+        <line class="wire" x1="80" y1="76" x2="80" y2="60"/>
+        <line class="wire" x1="64" y1="106" x2="96" y2="106"/>
+        <line class="wire" x1="64" y1="112" x2="96" y2="112"/>
+        <line class="wire" x1="80" y1="76" x2="80" y2="106"/>
+        <line class="wire" x1="80" y1="112" x2="80" y2="140"/>
+        <text class="lbl" x="100" y="112">Cp</text>
+        <path class="comp-stroke" d="M120 76 q6 -8 12 0 q6 8 12 0 q6 -8 12 0 q6 8 12 0" fill="none"/>
+        <line class="wire" x1="80" y1="76" x2="120" y2="76"/>
+        <text class="lbl" x="126" y="56">Ls</text>
+        <line class="wire" x1="184" y1="76" x2="240" y2="76"/>
+        <line class="wire" x1="20" y1="140" x2="240" y2="140"/>
+        <line class="wire" x1="240" y1="76" x2="240" y2="140"/>
+        <line class="wire" x1="240" y1="108" x2="290" y2="108"/>
+        <text class="lbl" x="250" y="100">50 &Omega;</text>
+        <circle r="4" fill="var(--power)">
+          <animateMotion dur="2s" repeatCount="indefinite" path="M20 76 L 80 76 L 120 76 Q126 68 132 76 Q138 84 144 76 Q150 68 156 76 Q162 84 168 76 L 240 76 L 240 108 L 290 108"/>
+        </circle>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ================= STAGE 5 : ANTENNE ================= -->
+  <section class="stage" style="border-bottom:1px dashed var(--line);">
+    <div>
+      <p class="stage-num mono">ETAGE 05</p>
+      <h2>Antenne</h2>
+      <p>Convertit la puissance electrique en onde electromagnetique rayonnee dans la bande de brouillage visee. Sa geometrie et son impedance sont choisies en coherence avec l'adaptation de sortie.</p>
+
+      <div class="formula">lambda = c / f0,&nbsp; longueur quart d'onde = lambda / 4</div>
+
+      <div class="values">
+        <p class="values-title mono">DIMENSIONNEMENT (EXEMPLE A 433 MHz)</p>
+        <div class="vgrid">
+          <div class="vitem"><div class="label">lambda</div><div class="val">~ 69 cm</div></div>
+          <div class="vitem"><div class="label">Quart d'onde</div><div class="val">~ 17.3 cm</div></div>
+          <div class="vitem"><div class="label">Impedance antenne</div><div class="val">~ 50 &Omega;</div></div>
+        </div>
+      </div>
+      <p class="note">Une antenne quart d'onde (type monopole sur plan de masse) offre un bon compromis simplicite/encombrement pour cette bande.</p>
+    </div>
+    <div class="schematic">
+      <svg viewBox="0 0 320 200">
+        <line class="wire" x1="160" y1="150" x2="160" y2="60"/>
+        <line class="wire" x1="130" y1="150" x2="190" y2="150"/>
+        <circle class="ring" cx="160" cy="60" r="18" fill="none" stroke="var(--signal)" stroke-width="1.6" opacity="0.9">
+          <animate attributeName="r" values="6;70" dur="2.4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.9;0" dur="2.4s" repeatCount="indefinite"/>
+        </circle>
+        <circle class="ring" cx="160" cy="60" r="18" fill="none" stroke="var(--signal)" stroke-width="1.6" opacity="0.9">
+          <animate attributeName="r" values="6;70" dur="2.4s" begin="0.8s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.9;0" dur="2.4s" begin="0.8s" repeatCount="indefinite"/>
+        </circle>
+        <circle class="ring" cx="160" cy="60" r="18" fill="none" stroke="var(--signal)" stroke-width="1.6" opacity="0.9">
+          <animate attributeName="r" values="6;70" dur="2.4s" begin="1.6s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.9;0" dur="2.4s" begin="1.6s" repeatCount="indefinite"/>
+        </circle>
+        <text class="lbl" x="176" y="100">quart d'onde</text>
+      </svg>
+    </div>
+  </section>
+
+  <footer>
+    <p>Les valeurs numeriques affichees (L, C, gain, frequence, dimensions d'antenne) sont des exemples illustratifs a la bande 433 MHz. Elles sont a remplacer par les valeurs reellement calculees et mesurees pour ce projet (frequence de brouillage visee, transistors utilises, resultats de simulation ou de mesure a l'analyseur de spectre).</p>
+  </footer>
+
+</div>
+</body>
+</html>
